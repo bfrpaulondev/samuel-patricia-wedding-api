@@ -3,11 +3,11 @@ const Rsvp = require('../models/Rsvp');
 
 exports.createRsvp = async (req, res) => {
   try {
-    const { fullName, email, phone, willAttend, guests, dietaryRestrictions, message } = req.body;
+    const { name, email, guests, dietary, message } = req.body;
 
     // Validar campos obrigatórios
-    if (!fullName || !email || willAttend === undefined) {
-      return res.status(400).json({ message: 'Nome, email e confirmação são obrigatórios' });
+    if (!name || !email || !guests) {
+      return res.status(400).json({ message: 'Nome, email e número de convidados são obrigatórios' });
     }
 
     // Verificar se já existe RSVP com esse email
@@ -17,12 +17,10 @@ exports.createRsvp = async (req, res) => {
     }
 
     const rsvp = await Rsvp.create({
-      fullName,
+      name,
       email: email.toLowerCase(),
-      phone,
-      willAttend,
-      guests: willAttend ? guests || 1 : 0,
-      dietaryRestrictions,
+      guests: guests || 1,
+      dietary,
       message,
     });
 
@@ -52,8 +50,7 @@ exports.checkRsvpByEmail = async (req, res) => {
 
     res.json({
       exists: true,
-      fullName: rsvp.fullName,
-      willAttend: rsvp.willAttend,
+      name: rsvp.name,
       status: rsvp.status,
       submittedAt: rsvp.createdAt,
     });

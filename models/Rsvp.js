@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const RsvpSchema = new mongoose.Schema(
   {
-    fullName: {
+    name: {
       type: String,
       required: true,
       trim: true,
@@ -14,31 +14,24 @@ const RsvpSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    phone: {
-      type: String,
-      trim: true,
-    },
-    willAttend: {
-      type: Boolean,
-      required: true,
-    },
     guests: {
       type: Number,
+      required: true,
+      min: 1,
       default: 1,
-      min: 0,
-    },
-    dietaryRestrictions: {
-      type: String,
-      trim: true,
     },
     message: {
       type: String,
       trim: true,
     },
+    dietary: {
+      type: String,
+      trim: true,
+    },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending',
+      enum: ['PENDING', 'APPROVED', 'REJECTED'],
+      default: 'PENDING',
     },
   },
   {

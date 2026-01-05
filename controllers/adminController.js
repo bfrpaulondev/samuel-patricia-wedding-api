@@ -31,7 +31,7 @@ exports.updateRsvpStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    if (!['pending', 'approved', 'rejected'].includes(status)) {
+    if (!['PENDING', 'APPROVED', 'REJECTED'].includes(status)) {
       return res.status(400).json({ message: 'Status inválido' });
     }
 
@@ -75,14 +75,11 @@ exports.deleteRsvp = async (req, res) => {
 exports.getStats = async (req, res) => {
   try {
     const total = await Rsvp.countDocuments();
-    const pending = await Rsvp.countDocuments({ status: 'pending' });
-    const approved = await Rsvp.countDocuments({ status: 'approved' });
-    const rejected = await Rsvp.countDocuments({ status: 'rejected' });
-    const willAttend = await Rsvp.countDocuments({ willAttend: true });
-    const wontAttend = await Rsvp.countDocuments({ willAttend: false });
+    const pending = await Rsvp.countDocuments({ status: 'PENDING' });
+    const approved = await Rsvp.countDocuments({ status: 'APPROVED' });
+    const rejected = await Rsvp.countDocuments({ status: 'REJECTED' });
     
     const guestsResult = await Rsvp.aggregate([
-      { $match: { willAttend: true } },
       { $group: { _id: null, total: { $sum: '$guests' } } }
     ]);
     
@@ -93,8 +90,6 @@ exports.getStats = async (req, res) => {
       pendingCount: pending,
       approvedCount: approved,
       rejectedCount: rejected,
-      willAttendCount: willAttend,
-      wontAttendCount: wontAttend,
       totalGuests,
     });
   } catch (error) {
