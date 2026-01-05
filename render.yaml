@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: wedding-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: true
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ADMIN_CODE
+        sync: false
+      - key: CLIENT_ORIGIN
+        value: https://samuel-patricia-wedding-site.vercel.app
