@@ -60,8 +60,11 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 /* ########################################
    Routes
 ######################################## */
+const cleanupRoutes = require('./routes/cleanup.routes');
+
 app.use('/api/rsvps', rsvpRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/cleanup', cleanupRoutes);
 app.use('/api/auth', authRoutes);
 
 // Health check
