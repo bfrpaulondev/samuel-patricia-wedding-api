@@ -18,16 +18,28 @@ npm install
 
 ## ⚙️ Configuração
 
-Crie um arquivo `.env`:
+Crie um arquivo `.env` baseado no exemplo:
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env` e configure suas credenciais reais:
 
 ```env
+# ⚠️ Use valores reais aqui - Este é apenas um exemplo!
 PORT=5000
-MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/wedding-app
-ADMIN_CODE=ADMIN-SAMUEL-PATRICIA-2026
-JWT_SECRET=sua-chave-secreta
+MONGO_URI=mongodb+srv://SEU_USUARIO:SUA_SENHA@cluster.mongodb.net/wedding-app
+ADMIN_CODE=SEU-CODIGO-ADMIN-UNICO
+JWT_SECRET=gere-um-secret-aleatorio-forte-aqui
 JWT_EXPIRES_IN=7d
-CLIENT_ORIGIN=https://seu-frontend.com
+CLIENT_ORIGIN=https://seu-frontend.vercel.app
 ```
+
+**🔐 IMPORTANTE**:
+- NUNCA commite o arquivo `.env` ao Git
+- Use o arquivo `.env.example` como referência
+- Configure as mesmas variáveis no Vercel (Settings > Environment Variables)
 
 ## 🏃 Executar
 

@@ -1,218 +1,185 @@
-# 🚨 ALERTA DE SEGURANÇA - AÇÃO IMEDIATA NECESSÁRIA
+# 🚨 ALERTA DE SEGURANÇA - Sistema de Casamento
 
-## ⚠️ SITUAÇÃO CRÍTICA IDENTIFICADA
-
-**Problema**: Alguém acessou o dashboard de administração sem autorização e:
-- ✅ Criou 23 confirmações falsas com emails @example.com
-- ✅ Aprovou 4 dessas confirmações
-- ✅ Teve acesso total ao sistema
-
-**Data da detecção**: 05 de Janeiro de 2026, 19:34
+**Data da Análise**: 2026-01-05  
+**Status**: ⚠️ MEDIDAS DE SEGURANÇA IMPLEMENTADAS
 
 ---
 
-## 🔒 AÇÕES IMEDIATAS - FAÇA AGORA!
+## 🔍 PROBLEMA IDENTIFICADO
 
-### **1. TROCAR A SENHA DO ADMIN (URGENTE!)**
+### Dados Suspeitos no Sistema
 
-#### **Nova Senha Gerada**:
-```
-Email: samuel@casamento.com
-Senha: SamuelPatricia2026!@#SECURE
-```
+**O que aconteceu**:
+- Foram encontradas 23 confirmações com emails `@example.com`
+- Dessas, 4 estavam aprovadas e 19 pendentes
+- Você não criou nem aprovou estes dados
+- Suspeita de acesso não autorizado ao dashboard
 
-#### **Novo Hash para MongoDB**:
-```
-$2b$10$ouIU91WYwOYX.S9Yxlo5m.bTNDpWGCz3eDP/1uytl7e2sIGCToc8e
-```
+### Análise
 
-#### **Como Atualizar**:
-1. Acesse MongoDB Atlas: https://cloud.mongodb.com/
-2. Conecte ao cluster: `mongodb+srv://bfrpaulondev_db_user:...@cluster0.mp369cb.mongodb.net/wedding-app`
-3. Vá para: Database `wedding-app` → Collection `users`
-4. Encontre o documento com `email: "samuel@casamento.com"`
-5. Clique em **EDIT**
-6. Substitua o campo `passwordHash` pelo novo hash acima
-7. **SAVE**
-8. **FAÇA LOGOUT** de todas as sessões atuais
+✅ **Dados Fictícios**: Todos os emails terminam em `@example.com` (domínio de teste)  
+⚠️ **Acesso Suspeito**: Alguém pode ter obtido credenciais de admin  
+🔴 **Risco**: Credenciais podem ter sido expostas
 
 ---
 
-### **2. LIMPAR DADOS DE TESTE**
+## 🛡️ MEDIDAS DE SEGURANÇA IMPLEMENTADAS
 
-Agora você tem um endpoint para remover os dados falsos:
+### 1. Sistema de Limpeza de Dados
 
-#### **Opção A: Remover apenas @example.com**
+Foram criados dois endpoints de limpeza:
+
+#### A. Remover Dados de Teste
+```bash
+DELETE /api/admin/cleanup/test
+```
+Remove apenas confirmações com email `@example.com`
+
+#### B. Limpar Todos os Dados (Emergência)
+```bash
+DELETE /api/admin/cleanup/all
+Body: { "confirmPassword": "DELETE_ALL_CONFIRMATIONS_2026" }
+```
+Remove TODAS as confirmações (requer senha de confirmação)
+
+### 2. Rotação de Credenciais
+
+**⚠️ AÇÃO NECESSÁRIA**: Você precisa trocar a senha do admin no MongoDB.
+
+#### Como Gerar Nova Senha
+
+Execute este script Node.js para gerar um hash:
+
+```javascript
+const bcrypt = require('bcryptjs');
+const novaSenha = 'DEFINA_UMA_SENHA_FORTE_AQUI'; // Troque isto!
+
+bcrypt.hash(novaSenha, 10, (err, hash) => {
+  if (err) throw err;
+  console.log('Nova senha:', novaSenha);
+  console.log('Novo hash:', hash);
+});
+```
+
+**OU** use o comando direto:
 
 ```bash
-# Via curl (precisa do token JWT)
+node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('SUA_NOVA_SENHA', 10, (e,h) => console.log('Hash:', h))"
+```
+
+#### Como Atualizar no MongoDB
+
+1. Acesse: https://cloud.mongodb.com
+2. Navegue até: `wedding-app` > `users`
+3. Encontre o documento com `email: "samuel@casamento.com"`
+4. Edite o campo `passwordHash`
+5. Cole o novo hash gerado acima
+6. Salve as alterações
+
+### 3. Logout de Todas as Sessões
+
+Trocar a senha automaticamente invalida todos os tokens JWT existentes.
+
+---
+
+## 📋 CHECKLIST DE SEGURANÇA
+
+Execute estes passos **imediatamente**:
+
+- [ ] **1. Trocar senha do admin no MongoDB** (URGENTE!)
+- [ ] **2. Fazer logout do dashboard** (se estiver logado)
+- [ ] **3. Fazer login com a nova senha**
+- [ ] **4. Limpar dados de teste** (endpoint `/api/admin/cleanup/test`)
+- [ ] **5. Verificar outros admins no MongoDB** (deve haver apenas 1)
+- [ ] **6. Revisar logs de acesso** (se disponível)
+- [ ] **7. Ativar 2FA no MongoDB Atlas** (se possível)
+- [ ] **8. Monitorar novos acessos suspeitos**
+
+---
+
+## 🔧 COMO USAR OS ENDPOINTS DE LIMPEZA
+
+### Limpar Apenas Dados de Teste
+
+```bash
+# 1. Faça login para obter o token
+curl -X POST https://samuel-patricia-wedding-api.vercel.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "samuel@casamento.com", "password": "SUA_NOVA_SENHA"}'
+
+# 2. Use o token retornado
 curl -X DELETE https://samuel-patricia-wedding-api.vercel.app/api/admin/cleanup/test \
-  -H "Authorization: Bearer SEU_TOKEN_JWT"
+  -H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 
-Ou pelo Dashboard (após implementar):
-- Login → Dashboard → Configurações → Limpar Dados de Teste
-
-#### **Opção B: Remover TODOS os dados (CUIDADO!)**
+### Limpar Todos os Dados (Emergência)
 
 ```bash
-# Via curl (precisa do token JWT e senha de confirmação)
 curl -X DELETE https://samuel-patricia-wedding-api.vercel.app/api/admin/cleanup/all \
-  -H "Authorization: Bearer SEU_TOKEN_JWT" \
+  -H "Authorization: Bearer SEU_TOKEN_AQUI" \
   -H "Content-Type: application/json" \
   -d '{"confirmPassword": "DELETE_ALL_CONFIRMATIONS_2026"}'
 ```
 
 ---
 
-### **3. VERIFICAR QUEM MAIS TEM ACESSO**
+## 🔐 NOVAS PRÁTICAS DE SEGURANÇA
 
-#### **Checar usuários admin no MongoDB**:
-1. MongoDB Atlas → `wedding-app` → `users`
-2. Veja quantos documentos com `role: "ADMIN"` existem
-3. **Deveria ter APENAS 1** (você)
-4. Se houver mais, **DELETE OS OUTROS**
+### ✅ Implementado
 
----
-
-### **4. INVESTIGAR COMO ACONTECEU**
-
-#### **Possíveis Causas**:
-
-**A. Senha fraca ou vazada**:
-- ✅ Senha antiga: `NoivosSamuelPatricia2026!`
-- ❌ Pode ter sido descoberta ou compartilhada
-- ✅ **SOLUÇÃO**: Nova senha mais forte
-
-**B. Token JWT vazado**:
-- Alguém pode ter copiado seu token de autenticação
-- ✅ **SOLUÇÃO**: Trocar senha invalida todos os tokens
-
-**C. Acesso direto ao MongoDB**:
-- Credenciais do MongoDB podem ter vazado
-- ✅ **SOLUÇÃO**: Trocar senha do MongoDB Atlas
-
-**D. Sessão não expirada**:
-- Alguém usou seu computador/navegador
-- ✅ **SOLUÇÃO**: Logout de todas as sessões
-
----
-
-## 🛡️ MELHORIAS DE SEGURANÇA IMPLEMENTADAS
-
-### **1. Novos Endpoints de Limpeza**:
-- ✅ `DELETE /api/admin/cleanup/test` - Remove dados de teste
-- ✅ `DELETE /api/admin/cleanup/all` - Remove tudo (com senha de confirmação)
-
-### **2. Proteções Adicionais**:
+- ✅ Endpoints de limpeza protegidos com JWT
 - ✅ Senha de confirmação para operações críticas
-- ✅ Script para gerar senhas seguras
-- ✅ Hash bcrypt mais forte
+- ✅ Logs de segurança nas operações sensíveis
+- ✅ Validação de permissões de admin
+- ✅ Scripts para gerar senhas seguras
+
+### 📌 Recomendações Adicionais
+
+1. **Auditoria Regular**: Verifique o dashboard semanalmente
+2. **Monitoramento**: Ative alertas no MongoDB Atlas
+3. **Backup**: Faça backup regular dos dados
+4. **2FA**: Ative autenticação de dois fatores quando possível
+5. **Senhas Fortes**: Use no mínimo 16 caracteres com símbolos
+6. **Rotação**: Troque as credenciais a cada 90 dias
 
 ---
 
-## 📊 ANÁLISE DOS DADOS COMPROMETIDOS
+## 🔗 Links Importantes
 
-### **Confirmações Falsas Criadas**:
-- Total: 23 confirmações
-- Emails: Todos com domínio `@example.com`
-- Status: 
-  - 19 Pendentes
-  - 4 Aprovadas
-  - 0 Rejeitadas
-
-### **Nomes Usados**:
-1. Camila Souza
-2. Fernando Alves
-3. Juliana Rodrigues
-4. Ricardo Fernandes
-5. Beatriz Lima
-6. Carlos Mendes
-7. Ana Costa
-8. Pedro Oliveira
-9. Maria Santos
-10. João Silva
-... (e mais 13)
-
-**Conclusão**: São claramente dados de teste/falsos, NÃO são convidados reais.
+- **MongoDB Atlas**: https://cloud.mongodb.com
+- **Dashboard Admin**: https://samuel-patricia-wedding-site.vercel.app/admin/dashboard
+- **Login Admin**: https://samuel-patricia-wedding-site.vercel.app/admin/login
+- **API Docs**: https://samuel-patricia-wedding-api.vercel.app/api-docs
 
 ---
 
-## ✅ CHECKLIST DE SEGURANÇA
+## 📞 Suporte
 
-Faça AGORA, nesta ordem:
-
-- [ ] **1. Trocar senha do admin no MongoDB** (URGENTE!)
-- [ ] **2. Fazer logout do dashboard**
-- [ ] **3. Fazer login com a nova senha**
-- [ ] **4. Limpar dados de teste via API ou dashboard**
-- [ ] **5. Verificar se há outros admins no MongoDB**
-- [ ] **6. Trocar senha do MongoDB Atlas** (se possível)
-- [ ] **7. Verificar logs do Vercel** para ver IPs de acesso
-- [ ] **8. Habilitar autenticação de dois fatores** (se disponível)
-- [ ] **9. Não compartilhar credenciais com ninguém**
-- [ ] **10. Monitorar acessos nos próximos dias**
-
----
-
-## 🔐 NOVAS CREDENCIAIS
-
-### **Admin Dashboard**:
-```
-URL: https://samuel-patricia-wedding-site.vercel.app/admin/login
-Email: samuel@casamento.com
-Senha: SamuelPatricia2026!@#SECURE
-```
-
-**⚠️ IMPORTANTE**: 
-- Não compartilhe esta senha
-- Não salve em navegadores públicos
-- Use sempre em computadores seguros
-- Faça logout após usar
-
----
-
-## 📝 PRÓXIMAS MELHORIAS RECOMENDADAS
-
-### **Curto Prazo** (fazer esta semana):
-1. ✅ Implementar logs de auditoria (quem fez o quê)
-2. ✅ Adicionar campo "updatedBy" nas confirmações
-3. ✅ Registrar IP e timestamp de cada login
-4. ✅ Email de notificação quando alguém faz login
-5. ✅ Botão "Limpar Dados de Teste" no dashboard
-
-### **Médio Prazo** (fazer este mês):
-1. ✅ Autenticação de dois fatores (2FA)
-2. ✅ Limite de tentativas de login
-3. ✅ Sessões com tempo de expiração
-4. ✅ Whitelist de IPs permitidos
-5. ✅ Backup automático do banco de dados
-
----
-
-## 📞 SUPORTE
-
-Se precisar de ajuda para implementar qualquer uma dessas melhorias, é só pedir!
+Se precisar de ajuda adicional:
+- **Desenvolvedor**: @bfrpaulondev
+- **WhatsApp**: +351 935 559 989
 
 ---
 
 ## 🎯 RESUMO EXECUTIVO
 
-**O QUE ACONTECEU**:
-- ❌ Acesso não autorizado ao dashboard
-- ❌ 23 confirmações falsas criadas
-- ❌ 4 confirmações falsas aprovadas
-
-**O QUE FAZER AGORA**:
-- ✅ Trocar senha IMEDIATAMENTE
-- ✅ Limpar dados falsos
-- ✅ Verificar acessos
-- ✅ Reforçar segurança
-
-**PRIORIDADE**: 🔴 **CRÍTICA - AÇÃO IMEDIATA**
+| Item | Status | Ação Necessária |
+|------|--------|----------------|
+| **Dados Suspeitos** | ⚠️ Identificados | Limpar com endpoint |
+| **Credenciais** | 🔴 Comprometidas | Trocar imediatamente |
+| **Sistema** | ✅ Protegido | Endpoints de limpeza ativos |
+| **Monitoramento** | 📊 Necessário | Verificar regularmente |
 
 ---
 
-**Data do Relatório**: 05 de Janeiro de 2026  
-**Commit de Correção**: `ccfc80c`  
-**Status**: ⚠️ **Aguardando ação do administrador**
+**PRÓXIMOS PASSOS**: 
+1. Trocar senha do admin no MongoDB
+2. Limpar dados de teste
+3. Monitorar novos acessos
+
+**PRIORIDADE**: 🔴 ALTA - Execute as ações acima o mais rápido possível!
+
+---
+
+*Este documento foi gerado como parte de uma auditoria de segurança.*  
+*Mantenha-o confidencial e não compartilhe publicamente.*

@@ -22,3 +22,13 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Environment Variables (SECURITY)
+.env
+.env.local
+.env.*.local
+
+# Security - Scripts with hardcoded credentials
+generate-admin-hash.js
+generate-new-admin-password.js
+SECURITY-AUDIT-REPORT.md
