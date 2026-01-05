@@ -7,11 +7,6 @@ yarn.lock
 dist/
 *.tsbuildinfo
 
-# Environment
-.env
-.env.local
-.env.production
-
 # Logs
 logs/
 *.log
