@@ -9,6 +9,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const rsvpRoutes = require('./routes/rsvp.routes');
 const adminRoutes = require('./routes/admin.routes');
 const authRoutes = require('./routes/auth.routes');
+const cleanupRoutes = require('./routes/cleanup.routes');
 
 const app = express();
 
@@ -55,13 +56,17 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Swagger UI com opções customizadas
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Wedding API - Docs',
+}));
 
 /* ########################################
    Routes
 ######################################## */
-const cleanupRoutes = require('./routes/cleanup.routes');
-
 app.use('/api/rsvps', rsvpRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/cleanup', cleanupRoutes);
