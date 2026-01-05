@@ -19,7 +19,8 @@ module.exports = function authAdmin(req, res, next) {
 
     const decoded = jwt.verify(token, JWT_SECRET);
     
-    if (decoded.role !== 'admin') {
+    // Aceitar tanto 'admin' quanto 'ADMIN' (case insensitive)
+    if (decoded.role.toUpperCase() !== 'ADMIN') {
       return res.status(403).json({ message: 'Acesso negado: apenas admins' });
     }
 
