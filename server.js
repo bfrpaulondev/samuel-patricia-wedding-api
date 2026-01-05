@@ -57,12 +57,26 @@ const swaggerOptions = {
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-// Swagger UI com opções customizadas
+// Swagger UI com CDN para funcionar na Vercel
 app.use('/api-docs', swaggerUi.serve);
 app.get('/api-docs', swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Wedding API - Docs',
+  swaggerOptions: {
+    url: '/api-docs-json', // Endpoint para o spec JSON
+  },
+  customCssUrl: 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui.css',
+  customJs: [
+    'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-bundle.js',
+    'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js',
+  ],
 }));
+
+// Endpoint para servir o spec JSON
+app.get('/api-docs-json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 /* ########################################
    Routes
