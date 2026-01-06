@@ -44,15 +44,30 @@ const swaggerOptions = {
     info: {
       title: 'Wedding API - Samuel & Patrícia',
       version: '1.0.0',
-      description: 'API para gerenciamento de confirmações de casamento',
+      description: 'API RESTful para gerenciamento de confirmações de casamento',
+      contact: {
+        name: 'Samuel & Patrícia',
+        email: 'contato@samuelpatricia.com.br'
+      }
     },
     servers: [
       {
-        url: '/api',
+        url: '/',
+        description: 'Servidor Principal'
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Insira o token JWT obtido no endpoint /api/auth/login'
+        }
+      }
+    }
   },
-  apis: ['./routes/*.js', './models/*.js'],
+  apis: ['./routes/*.js', './models/*.js', './server.js'],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
@@ -108,12 +123,35 @@ app.get('/api-docs', (req, res) => {
 /* ########################################
    Routes
 ######################################## */
-app.use('/api/rsvps', rsvpRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/admin/cleanup', cleanupRoutes);
-app.use('/api/auth', authRoutes);
 
-// Health check
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Health Check da API
+ *     description: Verifica o status da API e conexão com MongoDB
+ *     tags:
+ *       - Health
+ *     responses:
+ *       200:
+ *         description: API operacional
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                   example: 2026-01-06T00:00:00.000Z
+ *                 mongodb:
+ *                   type: string
+ *                   enum: [connected, disconnected]
+ *                   example: connected
+ */
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok',
@@ -121,6 +159,11 @@ app.get('/api/health', (req, res) => {
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
+
+app.use('/api/rsvps', rsvpRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/admin/cleanup', cleanupRoutes);
+app.use('/api/auth', authRoutes);
 
 /* ########################################
    Error handler global
